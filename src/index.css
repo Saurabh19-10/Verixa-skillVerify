@@ -1,0 +1,410 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Base transitions ──────────────────────────────────── */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.dark body {
+  background-color: #020617;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── Theme: Midnight ───────────────────────────────────── */
+.theme-midnight body,
+.theme-midnight #root {
+  background-color: #0a0e1a !important;
+}
+.theme-midnight .dark\:bg-slate-950 {
+  background-color: #0a0e1a !important;
+}
+.theme-midnight .dark\:bg-slate-900 {
+  background-color: #111827 !important;
+}
+.theme-midnight .dark\:bg-slate-800 {
+  background-color: #1f2937 !important;
+}
+.theme-midnight .text-blue-500,
+.theme-midnight .text-blue-400 {
+  color: #818cf8 !important;
+}
+.theme-midnight .bg-blue-600 {
+  background-color: #4f46e5 !important;
+}
+.theme-midnight .bg-blue-500\/10 {
+  background-color: rgb(99 102 241 / 0.1) !important;
+}
+.theme-midnight .border-blue-500 {
+  border-color: #6366f1 !important;
+}
+.theme-midnight .bg-blue-500 {
+  background-color: #6366f1 !important;
+}
+
+/* ── Theme: Forest ─────────────────────────────────────── */
+.theme-forest body,
+.theme-forest #root {
+  background-color: #0d1a0f !important;
+}
+.theme-forest .dark\:bg-slate-950 {
+  background-color: #0d1a0f !important;
+}
+.theme-forest .dark\:bg-slate-900 {
+  background-color: #1a2e1c !important;
+}
+.theme-forest .dark\:bg-slate-800 {
+  background-color: #243b27 !important;
+}
+.theme-forest .text-blue-500,
+.theme-forest .text-blue-400 {
+  color: #4ade80 !important;
+}
+.theme-forest .bg-blue-600 {
+  background-color: #16a34a !important;
+}
+.theme-forest .bg-blue-500\/10 {
+  background-color: rgb(34 197 94 / 0.1) !important;
+}
+.theme-forest .border-blue-500 {
+  border-color: #22c55e !important;
+}
+.theme-forest .bg-blue-500 {
+  background-color: #22c55e !important;
+}
+
+/* ── Theme: Sunset ─────────────────────────────────────── */
+.theme-sunset body,
+.theme-sunset #root {
+  background-color: #1a0a00 !important;
+}
+.theme-sunset .dark\:bg-slate-950 {
+  background-color: #1a0a00 !important;
+}
+.theme-sunset .dark\:bg-slate-900 {
+  background-color: #2d1506 !important;
+}
+.theme-sunset .dark\:bg-slate-800 {
+  background-color: #431f08 !important;
+}
+.theme-sunset .text-blue-500,
+.theme-sunset .text-blue-400 {
+  color: #fb923c !important;
+}
+.theme-sunset .bg-blue-600 {
+  background-color: #ea580c !important;
+}
+.theme-sunset .bg-blue-500\/10 {
+  background-color: rgb(249 115 22 / 0.1) !important;
+}
+.theme-sunset .border-blue-500 {
+  border-color: #f97316 !important;
+}
+.theme-sunset .bg-blue-500 {
+  background-color: #f97316 !important;
+}
+
+/* ── Theme: Ocean ──────────────────────────────────────── */
+.theme-ocean body,
+.theme-ocean #root {
+  background-color: #000d1a !important;
+}
+.theme-ocean .dark\:bg-slate-950 {
+  background-color: #000d1a !important;
+}
+.theme-ocean .dark\:bg-slate-900 {
+  background-color: #001f3d !important;
+}
+.theme-ocean .dark\:bg-slate-800 {
+  background-color: #00305c !important;
+}
+.theme-ocean .text-blue-500,
+.theme-ocean .text-blue-400 {
+  color: #22d3ee !important;
+}
+.theme-ocean .bg-blue-600 {
+  background-color: #0891b2 !important;
+}
+.theme-ocean .bg-blue-500\/10 {
+  background-color: rgb(6 182 212 / 0.1) !important;
+}
+.theme-ocean .border-blue-500 {
+  border-color: #06b6d4 !important;
+}
+.theme-ocean .bg-blue-500 {
+  background-color: #06b6d4 !important;
+}
+
+/* ── Theme: Glass (light frosted) ─────────────────────────── */
+
+/* Animated aurora background — soft pastel version */
+@keyframes aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.theme-glass body,
+.theme-glass #root {
+  background: linear-gradient(
+    135deg,
+    #f5f3ff 0%,
+    #eef2ff 25%,
+    #f0f9ff 50%,
+    #fdf4ff 75%,
+    #f5f3ff 100%
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: aurora 16s ease infinite !important;
+  min-height: 100vh !important;
+}
+
+/* Solid light surfaces → soft frosted-glass panels */
+.theme-glass .bg-white {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+.theme-glass .bg-slate-50 {
+  background: rgba(255, 255, 255, 0.40) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+}
+
+.theme-glass .bg-slate-100 {
+  background: rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Borders → soft translucent ink */
+.theme-glass .border-slate-200,
+.theme-glass .border-slate-300 {
+  border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+/* Accent color → violet-indigo, tuned for light backgrounds */
+.theme-glass .text-blue-500,
+.theme-glass .text-blue-400 {
+  color: #9333ea !important;
+}
+.theme-glass .bg-blue-600 {
+  background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+  border: none !important;
+}
+.theme-glass .bg-blue-500 {
+  background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+}
+.theme-glass .bg-blue-500\/10 {
+  background: rgba(168, 85, 247, 0.10) !important;
+}
+.theme-glass .border-blue-500 {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+}
+.theme-glass .hover\:border-blue-500:hover {
+  border-color: rgba(168, 85, 247, 0.6) !important;
+}
+.theme-glass .focus\:border-blue-500:focus,
+.theme-glass .focus\:ring-blue-500:focus {
+  border-color: rgba(168, 85, 247, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15) !important;
+}
+.theme-glass .ring-2.ring-blue-500 {
+  --tw-ring-color: rgba(168, 85, 247, 0.5) !important;
+}
+
+/* Cards — frosted glass panels */
+.theme-glass [class*="rounded-"][class*="border"] {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.10), inset 0 1px 0 rgba(255,255,255,0.6) !important;
+}
+
+/* Input fields */
+.theme-glass input,
+.theme-glass select,
+.theme-glass textarea {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a !important;
+  backdrop-filter: blur(8px) !important;
+}
+.theme-glass input::placeholder {
+  color: rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Sticky header glass */
+.theme-glass header {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Sidebar glass */
+.theme-glass aside,
+.theme-glass nav[class*="w-"] {
+  background: rgba(255, 255, 255, 0.50) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Buttons */
+.theme-glass button.bg-blue-600,
+.theme-glass button[class*="bg-blue"] {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%) !important;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.25) !important;
+  border: 1px solid rgba(255,255,255,0.4) !important;
+}
+.theme-glass button.bg-blue-600:hover,
+.theme-glass button[class*="bg-blue"]:hover {
+  box-shadow: 0 6px 28px rgba(168, 85, 247, 0.4) !important;
+}
+
+/* Outline buttons */
+.theme-glass button[class*="border-blue"] {
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  color: #9333ea !important;
+  background: rgba(168, 85, 247, 0.05) !important;
+}
+.theme-glass button[class*="border-blue"]:hover {
+  background: rgba(168, 85, 247, 0.12) !important;
+}
+
+/* Progress bars */
+.theme-glass .bg-blue-500[style*="width"] {
+  background: linear-gradient(90deg, #a855f7, #6366f1) !important;
+}
+
+/* Skill chips */
+.theme-glass [class*="bg-blue-500\/10"][class*="text-blue"] {
+  background: rgba(168, 85, 247, 0.10) !important;
+  color: #7e22ce !important;
+  border-color: rgba(168, 85, 247, 0.18) !important;
+}
+
+/* Dropdown/modal overlays */
+.theme-glass [class*="shadow-2xl"] {
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255,255,255,0.6) !important;
+}
+
+/* ── Theme: Sky (light) ───────────────────────────────────── */
+.theme-sky body,
+.theme-sky #root {
+  background-color: #eff6ff !important;
+}
+.theme-sky .bg-white {
+  background-color: #f8fbff !important;
+}
+.theme-sky .bg-slate-50 {
+  background-color: #e0f2fe !important;
+}
+.theme-sky .bg-slate-100 {
+  background-color: #dbeafe !important;
+}
+.theme-sky .border-slate-200,
+.theme-sky .border-slate-300 {
+  border-color: #bae6fd !important;
+}
+.theme-sky .text-blue-500,
+.theme-sky .text-blue-400 {
+  color: #0284c7 !important;
+}
+.theme-sky .bg-blue-600 {
+  background-color: #0284c7 !important;
+}
+.theme-sky .bg-blue-500\/10 {
+  background-color: rgb(2 132 199 / 0.1) !important;
+}
+.theme-sky .border-blue-500 {
+  border-color: #0ea5e9 !important;
+}
+.theme-sky .bg-blue-500 {
+  background-color: #0ea5e9 !important;
+}
+
+/* ── Theme: Mint (light) ──────────────────────────────────── */
+.theme-mint body,
+.theme-mint #root {
+  background-color: #f0fdf4 !important;
+}
+.theme-mint .bg-white {
+  background-color: #f9fffb !important;
+}
+.theme-mint .bg-slate-50 {
+  background-color: #dcfce7 !important;
+}
+.theme-mint .bg-slate-100 {
+  background-color: #bbf7d0 !important;
+}
+.theme-mint .border-slate-200,
+.theme-mint .border-slate-300 {
+  border-color: #bbf7d0 !important;
+}
+.theme-mint .text-blue-500,
+.theme-mint .text-blue-400 {
+  color: #16a34a !important;
+}
+.theme-mint .bg-blue-600 {
+  background-color: #16a34a !important;
+}
+.theme-mint .bg-blue-500\/10 {
+  background-color: rgb(22 163 74 / 0.1) !important;
+}
+.theme-mint .border-blue-500 {
+  border-color: #22c55e !important;
+}
+.theme-mint .bg-blue-500 {
+  background-color: #22c55e !important;
+}
+
+/* ── Theme: Blossom (light) ───────────────────────────────── */
+.theme-blossom body,
+.theme-blossom #root {
+  background-color: #fdf2f8 !important;
+}
+.theme-blossom .bg-white {
+  background-color: #fffafc !important;
+}
+.theme-blossom .bg-slate-50 {
+  background-color: #fce7f3 !important;
+}
+.theme-blossom .bg-slate-100 {
+  background-color: #fbcfe8 !important;
+}
+.theme-blossom .border-slate-200,
+.theme-blossom .border-slate-300 {
+  border-color: #fbcfe8 !important;
+}
+.theme-blossom .text-blue-500,
+.theme-blossom .text-blue-400 {
+  color: #db2777 !important;
+}
+.theme-blossom .bg-blue-600 {
+  background-color: #db2777 !important;
+}
+.theme-blossom .bg-blue-500\/10 {
+  background-color: rgb(219 39 119 / 0.1) !important;
+}
+.theme-blossom .border-blue-500 {
+  border-color: #ec4899 !important;
+}
+.theme-blossom .bg-blue-500 {
+  background-color: #ec4899 !important;
+}

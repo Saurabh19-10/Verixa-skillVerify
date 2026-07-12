@@ -1,0 +1,81 @@
+const assessments = [
+    {
+      id: 1,
+      title: "JavaScript Fundamentals",
+      category: "Frontend",
+      difficulty: "Easy",
+      score: 92,
+      totalQuestions: 25,
+      completedQuestions: 25,
+      duration: "30 min",
+      status: "Completed",
+      date: "2026-06-10",
+    },
+  
+    {
+      id: 2,
+      title: "React.js Assessment",
+      category: "Frontend",
+      difficulty: "Medium",
+      score: 88,
+      totalQuestions: 30,
+      completedQuestions: 30,
+      duration: "45 min",
+      status: "Completed",
+      date: "2026-06-12",
+    },
+  
+    {
+      id: 3,
+      title: "Node.js Backend Challenge",
+      category: "Backend",
+      difficulty: "Hard",
+      score: 84,
+      totalQuestions: 20,
+      completedQuestions: 20,
+      duration: "60 min",
+      status: "Completed",
+      date: "2026-06-15",
+    },
+  
+    {
+      id: 4,
+      title: "MongoDB Database Quiz",
+      category: "Database",
+      difficulty: "Medium",
+      score: 90,
+      totalQuestions: 20,
+      completedQuestions: 20,
+      duration: "35 min",
+      status: "Completed",
+      date: "2026-06-18",
+    },
+  
+    {
+      id: 5,
+      title: "System Design Basics",
+      category: "Architecture",
+      difficulty: "Hard",
+      score: null,
+      totalQuestions: 15,
+      completedQuestions: 0,
+      duration: "45 min",
+      status: "Pending",
+      date: null,
+    },
+  
+    {
+      id: 6,
+      title: "Data Structures & Algorithms",
+      category: "DSA",
+      difficulty: "Hard",
+      score: null,
+      totalQuestions: 40,
+      completedQuestions: 0,
+      duration: "90 min",
+      status: "Pending",
+      date: null,
+    },
+  ];
+  
+  export default assessments;
