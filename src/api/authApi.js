@@ -2,8 +2,8 @@ import axios from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "http://localhost:5050/api";
-
+  "https://verixa-skillverify.onrender.com/api";
+  
 const API = axios.create({
   baseURL: `${API_BASE_URL}/auth`,
   headers: {
