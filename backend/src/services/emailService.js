@@ -1,90 +1,40 @@
-import dns from "node:dns";
-import nodemailer from "nodemailer";
-
-dns.setDefaultResultOrder("ipv4first");
-// =========================================
-// Email Configuration
-// =========================================
+import { Resend } from "resend";
 
 const getEmailConfig = () => {
-  const emailUser =
-    process.env.EMAIL_USER?.trim();
+  const apiKey = process.env.RESEND_API_KEY?.trim();
 
-  const emailPassword = (
-    process.env.EMAIL_PASSWORD ||
-    process.env.EMAIL_PASS ||
-    ""
-  )
-    .replace(/\s+/g, "")
-    .trim();
-
-  const emailHost =
-    process.env.EMAIL_HOST?.trim() ||
-    "smtp.gmail.com";
-
-  const emailPort =
-    Number(process.env.EMAIL_PORT) || 465;
-
-  if (!emailUser || !emailPassword) {
-    throw new Error(
-      "EMAIL_USER and EMAIL_PASSWORD are required"
-    );
-  }
-
-  return {
-    emailUser,
-    emailPassword,
-    emailHost,
-    emailPort,
-  };
-};
-
-// =========================================
-// SMTP Transporter
-// =========================================
-
-const createTransporter = () => {
-  const {
-    emailUser,
-    emailPassword,
-    emailHost,
-    emailPort,
-  } = getEmailConfig();
-
-  return nodemailer.createTransport({
-    host: emailHost,
-    port: emailPort,
-
-    // Port 465 uses SSL.
-    // Port 587 uses STARTTLS.
-    secure: emailPort === 465,
-
-    auth: {
-      user: emailUser,
-      pass: emailPassword,
-    },
-
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000,
-
-    tls: {
-      minVersion: "TLSv1.2",
-      servername: emailHost,
-    },
-  });
-};
-
-const getSender = () => {
   const senderEmail =
     process.env.EMAIL_FROM?.trim() ||
-    process.env.EMAIL_USER?.trim();
+    "onboarding@resend.dev";
 
   const senderName =
     process.env.EMAIL_FROM_NAME?.trim() ||
     "Verixa";
 
-  return `"${senderName}" <${senderEmail}>`;
+  if (!apiKey) {
+    throw new Error(
+      "RESEND_API_KEY is required"
+    );
+  }
+
+  return {
+    apiKey,
+    senderEmail,
+    senderName,
+  };
+};
+
+const getResendClient = () => {
+  const { apiKey } = getEmailConfig();
+
+  return new Resend(apiKey);
+};
+
+const getSender = () => {
+  const { senderEmail, senderName } =
+    getEmailConfig();
+
+  return `${senderName} <${senderEmail}>`;
 };
 
 // =========================================
@@ -118,49 +68,39 @@ export const sendEmail = async ({
     );
   }
 
-  const transporter = createTransporter();
+  const resend = getResendClient();
 
-  try {
-    const info = await transporter.sendMail({
+  const { data, error } =
+    await resend.emails.send({
       from: getSender(),
-      to: recipient,
+      to: [recipient],
       subject: emailSubject,
-      text,
       html,
+      text,
     });
 
-    console.log("Email sent successfully:", {
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-    });
+  if (error) {
+    console.error(
+      "Resend email error:",
+      error
+    );
 
-    if (
-      !Array.isArray(info.accepted) ||
-      info.accepted.length === 0
-    ) {
-      throw new Error(
-        "SMTP server did not accept the recipient"
-      );
-    }
-
-    return {
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-    };
-  } catch (error) {
-    console.error("Email sending failed:", {
-      message: error.message,
-      code: error.code,
-      command: error.command,
-      response: error.response,
-    });
-
-    throw error;
-  } finally {
-    transporter.close();
+    throw new Error(
+      error.message ||
+        "Email could not be sent"
+    );
   }
+
+  console.log(
+    "Email sent through Resend:",
+    data?.id
+  );
+
+  return {
+    messageId: data?.id,
+    accepted: [recipient],
+    rejected: [],
+  };
 };
 
 // =========================================
@@ -174,12 +114,6 @@ export const sendVerificationOTPEmail =
     otp,
     expiresInMinutes = 10,
   }) => {
-    if (!email?.trim()) {
-      throw new Error(
-        "Recipient email is required"
-      );
-    }
-
     if (!otp) {
       throw new Error(
         "Verification OTP is required"
@@ -209,15 +143,6 @@ Proof of Skills, Not Just Claims.
     const html = `
       <!DOCTYPE html>
       <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>Verify your Verixa account</title>
-        </head>
-
         <body
           style="
             margin: 0;
@@ -266,7 +191,6 @@ Proof of Skills, Not Just Claims.
                           margin: 0;
                           color: #ffffff;
                           font-size: 32px;
-                          letter-spacing: 1px;
                         "
                       >
                         VERIXA
@@ -276,7 +200,6 @@ Proof of Skills, Not Just Claims.
                         style="
                           margin: 8px 0 0;
                           color: #dbeafe;
-                          font-size: 14px;
                         "
                       >
                         Proof of Skills, Not Just Claims.
@@ -286,42 +209,22 @@ Proof of Skills, Not Just Claims.
 
                   <tr>
                     <td style="padding: 40px 32px;">
-                      <h2
-                        style="
-                          margin: 0 0 18px;
-                          color: #0f172a;
-                          font-size: 26px;
-                        "
-                      >
+                      <h2>
                         Verify your email
                       </h2>
 
-                      <p
-                        style="
-                          margin: 0 0 14px;
-                          color: #475569;
-                          font-size: 16px;
-                          line-height: 1.7;
-                        "
-                      >
+                      <p>
                         Hello ${safeName},
                       </p>
 
-                      <p
-                        style="
-                          margin: 0 0 24px;
-                          color: #475569;
-                          font-size: 16px;
-                          line-height: 1.7;
-                        "
-                      >
+                      <p>
                         Enter this OTP to verify your
                         Verixa account:
                       </p>
 
                       <div
                         style="
-                          margin: 0 auto 24px;
+                          margin: 24px 0;
                           padding: 20px;
                           text-align: center;
                           background-color: #eff6ff;
@@ -341,51 +244,15 @@ Proof of Skills, Not Just Claims.
                         </span>
                       </div>
 
-                      <p
-                        style="
-                          margin: 0 0 12px;
-                          color: #475569;
-                          font-size: 15px;
-                          line-height: 1.7;
-                        "
-                      >
+                      <p>
                         This OTP is valid for
                         <strong>
                           ${expiresInMinutes} minutes
                         </strong>.
                       </p>
 
-                      <p
-                        style="
-                          margin: 0;
-                          color: #64748b;
-                          font-size: 14px;
-                          line-height: 1.7;
-                        "
-                      >
+                      <p>
                         Do not share this code with anyone.
-                      </p>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td
-                      style="
-                        padding: 22px 32px;
-                        text-align: center;
-                        background-color: #f8fafc;
-                        border-top: 1px solid #e2e8f0;
-                      "
-                    >
-                      <p
-                        style="
-                          margin: 0;
-                          color: #94a3b8;
-                          font-size: 12px;
-                        "
-                      >
-                        © ${new Date().getFullYear()}
-                        Verixa. All rights reserved.
                       </p>
                     </td>
                   </tr>
@@ -416,12 +283,6 @@ export const sendPasswordResetEmail =
     resetUrl,
     expiresInMinutes = 15,
   }) => {
-    if (!email?.trim()) {
-      throw new Error(
-        "Recipient email is required"
-      );
-    }
-
     if (!resetUrl?.trim()) {
       throw new Error(
         "Password reset URL is required"
@@ -438,172 +299,73 @@ export const sendPasswordResetEmail =
     const text = `
 Hello ${safeName},
 
-We received a request to reset your Verixa password.
+Reset your Verixa password using this link:
 
-Reset your password using this link:
 ${resetUrl}
 
-This link will expire in ${expiresInMinutes} minutes.
+This link expires in ${expiresInMinutes} minutes.
 
-If you did not request a password reset, ignore this email.
-
-Verixa
-Proof of Skills, Not Just Claims.
+If you did not request this reset, ignore this email.
     `.trim();
 
     const html = `
       <!DOCTYPE html>
       <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>Reset your Verixa password</title>
-        </head>
-
         <body
           style="
-            margin: 0;
-            padding: 0;
-            background-color: #f1f5f9;
             font-family: Arial, Helvetica, sans-serif;
-            color: #0f172a;
+            background-color: #f1f5f9;
+            padding: 32px;
           "
         >
-          <table
-            role="presentation"
-            width="100%"
-            cellspacing="0"
-            cellpadding="0"
-            border="0"
+          <div
             style="
-              background-color: #f1f5f9;
-              padding: 32px 16px;
+              max-width: 600px;
+              margin: auto;
+              background-color: #ffffff;
+              padding: 32px;
+              border-radius: 16px;
             "
           >
-            <tr>
-              <td align="center">
-                <table
-                  role="presentation"
-                  width="100%"
-                  cellspacing="0"
-                  cellpadding="0"
-                  border="0"
-                  style="
-                    max-width: 600px;
-                    background-color: #ffffff;
-                    border-radius: 20px;
-                    overflow: hidden;
-                  "
-                >
-                  <tr>
-                    <td
-                      style="
-                        padding: 32px;
-                        text-align: center;
-                        background-color: #1d4ed8;
-                      "
-                    >
-                      <h1
-                        style="
-                          margin: 0;
-                          color: #ffffff;
-                          font-size: 32px;
-                        "
-                      >
-                        VERIXA
-                      </h1>
-                    </td>
-                  </tr>
+            <h1 style="color: #1d4ed8;">
+              VERIXA
+            </h1>
 
-                  <tr>
-                    <td style="padding: 40px 32px;">
-                      <h2
-                        style="
-                          margin: 0 0 18px;
-                          color: #0f172a;
-                          font-size: 26px;
-                        "
-                      >
-                        Reset your password
-                      </h2>
+            <h2>Reset your password</h2>
 
-                      <p
-                        style="
-                          color: #475569;
-                          font-size: 16px;
-                          line-height: 1.7;
-                        "
-                      >
-                        Hello ${safeName},
-                      </p>
+            <p>Hello ${safeName},</p>
 
-                      <p
-                        style="
-                          color: #475569;
-                          font-size: 16px;
-                          line-height: 1.7;
-                        "
-                      >
-                        Click the button below to choose
-                        a new password.
-                      </p>
+            <p>
+              Click the button below to reset your
+              password.
+            </p>
 
-                      <div
-                        style="
-                          margin: 28px 0;
-                          text-align: center;
-                        "
-                      >
-                        <a
-                          href="${resetUrl}"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style="
-                            display: inline-block;
-                            padding: 14px 28px;
-                            background-color: #2563eb;
-                            color: #ffffff;
-                            text-decoration: none;
-                            border-radius: 12px;
-                            font-size: 16px;
-                            font-weight: 700;
-                          "
-                        >
-                          Reset Password
-                        </a>
-                      </div>
+            <p style="margin: 28px 0;">
+              <a
+                href="${resetUrl}"
+                style="
+                  display: inline-block;
+                  padding: 14px 28px;
+                  color: #ffffff;
+                  background-color: #2563eb;
+                  text-decoration: none;
+                  border-radius: 10px;
+                  font-weight: 700;
+                "
+              >
+                Reset Password
+              </a>
+            </p>
 
-                      <p
-                        style="
-                          color: #475569;
-                          font-size: 14px;
-                          line-height: 1.7;
-                        "
-                      >
-                        This link expires in
-                        <strong>
-                          ${expiresInMinutes} minutes
-                        </strong>.
-                      </p>
+            <p>
+              This link expires in
+              ${expiresInMinutes} minutes.
+            </p>
 
-                      <p
-                        style="
-                          color: #2563eb;
-                          font-size: 12px;
-                          word-break: break-all;
-                        "
-                      >
-                        ${resetUrl}
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
+            <p style="word-break: break-all;">
+              ${resetUrl}
+            </p>
+          </div>
         </body>
       </html>
     `;
@@ -616,23 +378,9 @@ Proof of Skills, Not Just Claims.
     });
   };
 
-// =========================================
-// SMTP Connection Test
-// =========================================
-
+// Kept for compatibility with existing imports.
 export const verifyEmailConnection =
   async () => {
-    const transporter =
-      createTransporter();
-
-    try {
-      await transporter.verify();
-      console.log(
-        "SMTP connection verified successfully"
-      );
-
-      return true;
-    } finally {
-      transporter.close();
-    }
+    getEmailConfig();
+    return true;
   };
