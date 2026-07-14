@@ -5,6 +5,7 @@ const API_BASE_URL =
   "https://verixa-skillverify.onrender.com/api";
 
 const TOKEN_STORAGE_KEY = "verixa_token";
+const USER_STORAGE_KEY = "verixa_user";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -17,8 +18,25 @@ const api = axios.create({
 let refreshPromise = null;
 
 const clearAuthentication = () => {
-  localStorage.removeItem("verixa_token");
-  localStorage.removeItem("verixa_user");
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+};
+
+const shouldSkipRefresh = (url = "") => {
+  const publicAuthEndpoints = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/verify-email",
+    "/auth/send-verification-otp",
+    "/auth/resend-verification-otp",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+    "/auth/refresh-token",
+  ];
+
+  return publicAuthEndpoints.some((endpoint) =>
+    url.includes(endpoint)
+  );
 };
 
 api.interceptors.request.use(
@@ -26,6 +44,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -39,18 +58,28 @@ api.interceptors.response.use(
 
   async (error) => {
     const originalRequest = error.config;
-
-    const isUnauthorized = error.response?.status === 401;
-
-    const isRefreshRequest =
-      originalRequest?.url?.includes("/auth/refresh-token");
+    const status = error.response?.status;
+    const requestUrl = originalRequest?.url || "";
 
     if (
-      !isUnauthorized ||
+      status !== 401 ||
       !originalRequest ||
       originalRequest._retry ||
-      isRefreshRequest
+      shouldSkipRefresh(requestUrl)
     ) {
+      return Promise.reject(error);
+    }
+
+    const storedAccessToken = localStorage.getItem(
+      TOKEN_STORAGE_KEY
+    );
+
+    /*
+     * When no access token exists, the user is not currently
+     * authenticated. Do not attempt refresh on public pages.
+     */
+    if (!storedAccessToken) {
+      clearAuthentication();
       return Promise.reject(error);
     }
 
@@ -90,7 +119,12 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       clearAuthentication();
-      return Promise.reject(refreshError);
+
+      /*
+       * Return the original unauthorized error instead of
+       * showing "Refresh token is missing" on login pages.
+       */
+      return Promise.reject(error);
     }
   }
 );
