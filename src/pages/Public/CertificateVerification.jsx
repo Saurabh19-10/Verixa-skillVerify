@@ -12,7 +12,9 @@ export default function CertificateVerification() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const backendUrl = "http://localhost:5050";
+  const backendUrl =
+  import.meta.env.VITE_BACKEND_URL ||
+  "https://verixa-skillverify.onrender.com";
 
   useEffect(() => {
     const fetchCertificate = async () => {

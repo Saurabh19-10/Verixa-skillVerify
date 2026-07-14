@@ -2,16 +2,14 @@ import axios from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "http://localhost:5050/api";
+  "https://verixa-skillverify.onrender.com/api";
 
-const TOKEN_STORAGE_KEY =
-  "verixa_token";
+const TOKEN_STORAGE_KEY = "verixa_token";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    "Content-Type":
-      "application/json",
+    "Content-Type": "application/json",
   },
   withCredentials: true,
 });
@@ -19,47 +17,33 @@ const api = axios.create({
 let refreshPromise = null;
 
 const clearAuthentication = () => {
-  localStorage.removeItem(
-    "verixa_token"
-  );
-
-  localStorage.removeItem(
-    "verixa_user"
-  );
+  localStorage.removeItem("verixa_token");
+  localStorage.removeItem("verixa_user");
 };
 
 api.interceptors.request.use(
   (config) => {
-    const token =
-      localStorage.getItem(
-        TOKEN_STORAGE_KEY
-      );
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 
     if (token) {
-      config.headers.Authorization =
-        `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
   },
-  (error) =>
-    Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
-    const originalRequest =
-      error.config;
+    const originalRequest = error.config;
 
-    const isUnauthorized =
-      error.response?.status === 401;
+    const isUnauthorized = error.response?.status === 401;
 
     const isRefreshRequest =
-      originalRequest?.url?.includes(
-        "/auth/refresh-token"
-      );
+      originalRequest?.url?.includes("/auth/refresh-token");
 
     if (
       !isUnauthorized ||
@@ -95,8 +79,7 @@ api.interceptors.response.use(
           });
       }
 
-      const newAccessToken =
-        await refreshPromise;
+      const newAccessToken = await refreshPromise;
 
       originalRequest.headers =
         originalRequest.headers || {};
@@ -107,10 +90,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       clearAuthentication();
-
-      return Promise.reject(
-        refreshError
-      );
+      return Promise.reject(refreshError);
     }
   }
 );
